@@ -1,10 +1,12 @@
 import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native'
 import React from 'react'
+import WorkoutTile from './Workout';
 
 const Body = () => {
   return (
     <View style={styles.bodyContainer}>
-      <Text>Hello</Text>
+      <WorkoutTile />
+      <WorkoutTile />
     </View>
   )
 }
