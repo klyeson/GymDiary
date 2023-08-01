@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 
 const WorkoutTile = (props) => {
   return (
     <View style={styles.item}>
-      <Text style={styles.workoutName}>workout</Text>
+      <Text style={styles.workoutName}>{props.text}</Text>
       <View style={styles.srwTitles}>
-        <Text style={styles.workoutSets}>sets</Text>
-        <Text style={styles.workoutReps}>reps</Text>
-        <Text style={styles.workoutWeight}>weight</Text>
+        <Text>{props.text1}</Text>
+        <Text>reps</Text>
+        <Text>weight</Text>
       </View>
     </View>
   );
@@ -19,20 +19,19 @@ export default WorkoutTile;
 const styles = StyleSheet.create({
   item: {
     backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 10,
+    paddingHorizontal: 15,
     margin: 4,
     flexDirection: "row",
+    width: '100%',
+    alignitems: 'center'
   },
   workoutName: {
     flex: 0.5,
+    fontSize: 20,
   },
   srwTitles: {
     flex: 0.5,
     flexDirection: "row",
     justifyContent: "space-evenly",
   },
-  workoutSets: {},
-  workoutReps: {},
-  workoutWeight: {},
 });
