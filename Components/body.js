@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState, setState, React, useCallback } from "react";
 import {
   View,
   Text,
@@ -5,89 +7,142 @@ import {
   KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
-  Keyboard
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
+  Dimensions,
+  RefreshControl,
 } from "react-native";
-import React, { useState } from "react";
-import WorkoutTile from "./Workout";
 
-const Body = (props) => {
-  const [workoutText, setText] = useState();
-  const [setsText, setText1] = useState();
-  const [workoutTextItems, setWorkoutItems] = useState([]);
+const Body = () => {
+  const [WorkoutsName, setWorkoutName] = useState("");
+  const [WorkoutSets, setWorkoutSets] = useState("");
+  const [WorkoutReps, setWorkoutReps] = useState("");
+  const [WorkoutWeight, setWorkoutWeight] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
 
-  const handleAddTask = () => {
-    Keyboard.dismiss();
-    setWorkoutItems([...workoutTextItems, workoutText, setsText])
-    setText(null);
-    setText1(null);
-  }
 
-  const completeTask = (index) => {
-    let itemsCopy = [...workoutTextItems];
-    itemsCopy.splice(index, 1);
-    setWorkoutItems(itemsCopy)
-  }
+  const onSubmit = async () => {
+    try {
+      AsyncStorage.setItem("WorkoutName", WorkoutsName);
+      AsyncStorage.setItem("WorkoutSets", WorkoutSets);
+      AsyncStorage.setItem("WorkoutReps", WorkoutReps);
+      AsyncStorage.setItem("WorkoutWeight", WorkoutWeight);
+    } catch (error) {
+      alert(error)
+    }
+
+  };
+
+  const load = async () => {
+    try {
+      const name = await AsyncStorage.getItem("WorkoutName");
+      const sets = await AsyncStorage.getItem("WorkoutSets");
+      const reps = await AsyncStorage.getItem("WorkoutReps");
+      const weight = await AsyncStorage.getItem("WorkoutWeight");
+      setWorkoutName(name);
+      setWorkoutSets(sets);
+      setWorkoutReps(reps);
+      setWorkoutWeight(weight);
+    } catch (error) {
+      alert(error)
+    }
+  };
+
+  deleteWorkout = () => {
+    AsyncStorage.removeItem("WorkoutName");
+    AsyncStorage.removeItem("WorkoutSets");
+    AsyncStorage.removeItem("WorkoutReps");
+    AsyncStorage.removeItem("WorkoutWeight");
+    setWorkoutName("");
+    setWorkoutSets("");
+    setWorkoutReps("");
+    setWorkoutWeight("");
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
   return (
-    <View style={styles.bodyContainer}>
-      <View style={styles.topItem}>
-        <Text style={styles.workoutName}>Workout</Text>
-        <View style={styles.srwTitles}>
-          <Text style={styles.workoutSets}>Sets</Text>
-          <Text style={styles.workoutReps}>Reps</Text>
-          <Text style={styles.workoutWeight}>Weight</Text>
-        </View>
-      </View>
-      <View style={styles.workoutTile}>
-        {
-          workoutTextItems.map((item, index, item1) => {
-            return(
-              <TouchableOpacity key={index}  onPress={() => completeTask(index)}>
-              <WorkoutTile text={item} setsText={item1}/> 
-              </TouchableOpacity>
-            )
-          })
-        }
-      </View> 
-
-      <KeyboardAvoidingView
-        keyboardVerticalOffset={-500}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.writeTaskWrapper}
-      >
-        <View style={styles.bottomBar}>
-          <View style={styles.modalWeight}>
-            <TextInput maxLength={28} placeholder="Workout" value={workoutText} onChangeText={text => setText(text)}
-            />
-            <TextInput
-            value={setsText}
-            onChangeText={setsText => setText1(setsText)}
-            keyboardType="number-pad"
-            placeholder="Sets"
-            ></TextInput>
-            <TextInput keyboardType="number-pad" placeholder="Reps"></TextInput>
-            <TextInput keyboardType="number-pad" placeholder="Weight"></TextInput>
+    <ScrollView style={styles.scroll} refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.bodyContainer}>
+          <View style={styles.topItem}>
+            <Text style={styles.workoutName}>WorkoutName</Text>
+            <View style={styles.srwTitles}>
+              <Text style={styles.workoutSets}>Sets</Text>
+              <Text style={styles.workoutReps}>Reps</Text>
+              <Text style={styles.workoutWeight}>Weight</Text>
+            </View>
           </View>
-          <View style={styles.button}>
-            <TouchableOpacity onPress={() => handleAddTask()}>
-              <View style={styles.addWrapper}>
-                <Text style={styles.addText}>+</Text>
+          <View style={styles.workoutTile}>
+            <TouchableOpacity onPress={deleteWorkout}>
+              <View style={styles.topItem}>
+                <Text style={styles.workoutName}>{WorkoutsName}</Text>
+                <View style={styles.srwTitles}>
+                  <Text style={styles.workoutSets}>{WorkoutSets}</Text>
+                  <Text style={styles.workoutReps}>{WorkoutReps}</Text>
+                  <Text style={styles.workoutWeight}>{WorkoutWeight}</Text>
+                </View>
               </View>
             </TouchableOpacity>
           </View>
+
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={-500}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.writeTaskWrapper}
+          >
+            <View style={styles.bottomBar}>
+              <View style={styles.modalWeight}>
+                <TextInput maxLength={28} placeholder="Workout" onChangeText={value => setWorkoutName(value)}
+                />
+                <TextInput
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="Sets"
+                  onChangeText={value => setWorkoutSets(value)}
+
+                ></TextInput>
+                <TextInput keyboardType="number-pad" maxLength={2} placeholder="Reps" onChangeText={value => setWorkoutReps(value)}></TextInput>
+                <TextInput keyboardType="number-pad" maxLength={3} placeholder="Weight" onChangeText={value => setWorkoutWeight(value)}></TextInput>
+              </View>
+              <View style={styles.button}>
+                <TouchableOpacity onPress={onSubmit}>
+                  <View style={styles.addWrapper}>
+                    <Text style={styles.addText}>+</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
         </View>
-      </KeyboardAvoidingView>
-    </View>
+      </TouchableWithoutFeedback>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  scroll: {
+    backgroundColor: "green"
+  },
   bodyContainer: {
-    flex: 1,
     backgroundColor: "#e2e2e2",
+    height: Dimensions.get("window").height
   },
   topItem: {
-    
+
     paddingHorizontal: 15,
     margin: 4,
     flexDirection: "row",

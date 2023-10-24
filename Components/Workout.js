@@ -4,10 +4,10 @@ import React, { useState } from "react";
 const WorkoutTile = (props) => {
   return (
     <View style={styles.item}>
-      <Text style={styles.workoutName}>{props.text}</Text>
+      <Text style={styles.workoutName}>{props.workoutText}</Text>
       <View style={styles.srwTitles}>
+        <Text>{props.setsText}</Text>
         <Text>{props.text1}</Text>
-        <Text>reps</Text>
         <Text>weight</Text>
       </View>
     </View>
