@@ -1,46 +1,21 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState, setState, React, useCallback } from "react";
+import { useEffect, useState, React } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView,
-  Dimensions,
-  RefreshControl,
 } from "react-native";
+import { COLORS } from "./Colors";
 
-const Body = () => {
-  const [WorkoutsName, setWorkoutName] = useState("");
-  const [WorkoutSets, setWorkoutSets] = useState("");
-  const [WorkoutReps, setWorkoutReps] = useState("");
-  const [WorkoutWeight, setWorkoutWeight] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
-
-
-  const onSubmit = async () => {
-    try {
-      AsyncStorage.setItem("WorkoutName", WorkoutsName);
-      AsyncStorage.setItem("WorkoutSets", WorkoutSets);
-      AsyncStorage.setItem("WorkoutReps", WorkoutReps);
-      AsyncStorage.setItem("WorkoutWeight", WorkoutWeight);
-    } catch (error) {
-      alert(error)
-    }
-
-  };
+const Body = ({ navigation }) => {
+  const [WorkoutsName, setWorkoutName] = useState();
+  const [WorkoutSets, setWorkoutSets] = useState();
+  const [WorkoutReps, setWorkoutReps] = useState();
+  const [WorkoutWeight, setWorkoutWeight] = useState();
 
   const load = async () => {
     try {
@@ -72,80 +47,58 @@ const Body = () => {
     load();
   }, []);
 
+
   return (
-    <ScrollView style={styles.scroll} refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.bodyContainer}>
-          <View style={styles.topItem}>
-            <Text style={styles.workoutName}>WorkoutName</Text>
-            <View style={styles.srwTitles}>
-              <Text style={styles.workoutSets}>Sets</Text>
-              <Text style={styles.workoutReps}>Reps</Text>
-              <Text style={styles.workoutWeight}>Weight</Text>
-            </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.bodyContainer}>
+        <View style={styles.topItem}>
+          <Text style={styles.workoutName}>WorkoutName</Text>
+          <View style={styles.srwTitles}>
+            <Text style={styles.workoutSets}>Sets</Text>
+            <Text style={styles.workoutReps}>Reps</Text>
+            <Text style={styles.workoutWeight}>Weight</Text>
           </View>
-          <View style={styles.workoutTile}>
-            <TouchableOpacity onPress={deleteWorkout}>
-              <View style={styles.topItem}>
-                <Text style={styles.workoutName}>{WorkoutsName}</Text>
-                <View style={styles.srwTitles}>
-                  <Text style={styles.workoutSets}>{WorkoutSets}</Text>
-                  <Text style={styles.workoutReps}>{WorkoutReps}</Text>
-                  <Text style={styles.workoutWeight}>{WorkoutWeight}</Text>
-                </View>
+        </View>
+        <View style={styles.workoutTile}>
+          <TouchableOpacity onPress={deleteWorkout}>
+            <View style={styles.topItem}>
+              <Text style={styles.workoutName}>{WorkoutsName}</Text>
+              <View style={styles.srwTitles}>
+                <Text style={styles.workoutSets}>{WorkoutSets}</Text>
+                <Text style={styles.workoutReps}>{WorkoutReps}</Text>
+                <Text style={styles.workoutWeight}>{WorkoutWeight}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomBar}>
+          <View style={styles.modalWeight}>
+          </View>
+          <View style={styles.button}>
+            <TouchableOpacity onPress={() => navigation.navigate("AddWorkout")}>
+              <View style={styles.addWrapper}>
+                <Text style={styles.addText}>+</Text>
               </View>
             </TouchableOpacity>
           </View>
-
-          <KeyboardAvoidingView
-            keyboardVerticalOffset={-500}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.writeTaskWrapper}
-          >
-            <View style={styles.bottomBar}>
-              <View style={styles.modalWeight}>
-                <TextInput maxLength={28} placeholder="Workout" onChangeText={value => setWorkoutName(value)}
-                />
-                <TextInput
-                  keyboardType="number-pad"
-                  maxLength={2}
-                  placeholder="Sets"
-                  onChangeText={value => setWorkoutSets(value)}
-
-                ></TextInput>
-                <TextInput keyboardType="number-pad" maxLength={2} placeholder="Reps" onChangeText={value => setWorkoutReps(value)}></TextInput>
-                <TextInput keyboardType="number-pad" maxLength={3} placeholder="Weight" onChangeText={value => setWorkoutWeight(value)}></TextInput>
-              </View>
-              <View style={styles.button}>
-                <TouchableOpacity onPress={onSubmit}>
-                  <View style={styles.addWrapper}>
-                    <Text style={styles.addText}>+</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
         </View>
-      </TouchableWithoutFeedback>
-    </ScrollView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    backgroundColor: "green"
-  },
+
   bodyContainer: {
-    backgroundColor: "#e2e2e2",
-    height: Dimensions.get("window").height
+    backgroundColor: "#fff",
+    flex: 1,
+    paddingTop: 5
   },
   topItem: {
-
     paddingHorizontal: 15,
     margin: 4,
     flexDirection: "row",
+
   },
   workoutName: {
     flex: 0.5,
@@ -164,7 +117,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   workoutTile: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.tiles,
     padding: 15,
     borderRadius: 10,
     margin: 4,
@@ -173,6 +126,7 @@ const styles = StyleSheet.create({
     flex: 0.5,
     flexDirection: "row",
     justifyContent: "space-evenly",
+    alignItems: "center",
   },
   bottomBar: {
     position: "absolute",
@@ -190,17 +144,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-end",
     paddingRight: 20,
+
   },
   addWrapper: {
     width: 60,
     height: 60,
     backgroundColor: "#fff",
-    borderRadius: 60,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.button,
   },
   addText: {
     fontSize: 45,
+    color: "#fff",
   },
 });
 
