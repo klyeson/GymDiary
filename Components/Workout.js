@@ -1,41 +1,40 @@
 import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { COLORS } from "./Colors"
 
-const WorkoutTile = ({ navigation }) => {
 
-  const [WorkoutsName, setWorkoutName] = useState();
-  const [WorkoutSets, setWorkoutSets] = useState();
-  const [WorkoutReps, setWorkoutReps] = useState();
-  const [WorkoutWeight, setWorkoutWeight] = useState();
-  const [workoutSlide, setWorkoutSlide] = useState();
+
+const Workout = ({ navigation }) => {
+  const [WorkoutsName, setWorkoutName] = useState('');
+  const [WorkoutSets, setWorkoutSets] = useState('');
+  const [WorkoutReps, setWorkoutReps] = useState('');
+  const [WorkoutWeight, setWorkoutWeight] = useState('');
+
 
   const onSubmit = async () => {
     try {
+
       AsyncStorage.setItem("WorkoutName", WorkoutsName);
       AsyncStorage.setItem("WorkoutSets", WorkoutSets);
       AsyncStorage.setItem("WorkoutReps", WorkoutReps);
       AsyncStorage.setItem("WorkoutWeight", WorkoutWeight);
-      await navigation.navigate("Body");
+      navigation.navigate("Body");
+
     } catch (error) {
       alert(error)
     }
-
-    // const handleAddTask = () => {
-    //   setWorkoutSlide
-    // }
 
   };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.Container}>
         <TextInput style={styles.textInput} maxLength={28} placeholder="Workout" onChangeText={value => setWorkoutName(value)}></TextInput>
+        <TextInput style={styles.textInput} keyboardType="number-pad" maxLength={2} placeholder="Reps" onChangeText={value => setWorkoutReps(value)}></TextInput>
         <TextInput style={styles.textInput} keyboardType="number-pad"
           maxLength={2}
           placeholder="Sets"
           onChangeText={value => setWorkoutSets(value)}></TextInput>
-        <TextInput style={styles.textInput} keyboardType="number-pad" maxLength={2} placeholder="Reps" onChangeText={value => setWorkoutReps(value)}></TextInput>
         <TextInput style={styles.textInput} keyboardType="number-pad" maxLength={3} placeholder="Weight" onChangeText={value => setWorkoutWeight(value)}></TextInput>
         <View style={styles.button}>
           <TouchableOpacity onPress={onSubmit}>
@@ -48,7 +47,7 @@ const WorkoutTile = ({ navigation }) => {
   );
 };
 
-export default WorkoutTile;
+export default Workout;
 
 const styles = StyleSheet.create({
   Container: {

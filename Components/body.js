@@ -1,52 +1,87 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState, React } from "react";
+import { useEffect, useState, useCallback, React } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  FlatList,
 } from "react-native";
 import { COLORS } from "./Colors";
 
 const Body = ({ navigation }) => {
-  const [WorkoutsName, setWorkoutName] = useState();
-  const [WorkoutSets, setWorkoutSets] = useState();
-  const [WorkoutReps, setWorkoutReps] = useState();
-  const [WorkoutWeight, setWorkoutWeight] = useState();
-
-  const load = async () => {
-    try {
-      const name = await AsyncStorage.getItem("WorkoutName");
-      const sets = await AsyncStorage.getItem("WorkoutSets");
-      const reps = await AsyncStorage.getItem("WorkoutReps");
-      const weight = await AsyncStorage.getItem("WorkoutWeight");
-      setWorkoutName(name);
-      setWorkoutSets(sets);
-      setWorkoutReps(reps);
-      setWorkoutWeight(weight);
-    } catch (error) {
-      alert(error)
-    }
-  };
-
-  deleteWorkout = () => {
-    AsyncStorage.removeItem("WorkoutName");
-    AsyncStorage.removeItem("WorkoutSets");
-    AsyncStorage.removeItem("WorkoutReps");
-    AsyncStorage.removeItem("WorkoutWeight");
-    setWorkoutName("");
-    setWorkoutSets("");
-    setWorkoutReps("");
-    setWorkoutWeight("");
-  };
+  const [workoutSlides, setWorkoutSlides] = useState([]);
 
   useEffect(() => {
     load();
   }, []);
 
+
+  const load = async () => {
+    try {
+      const storedSlides = await AsyncStorage.getItem('workoutSlides');
+      if (storedSlides) {
+        const parsedSlides = JSON.parse(storedSlides);
+        setWorkoutSlides(parsedSlides);
+      }
+      const name = await AsyncStorage.getItem('WorkoutName');
+      const sets = await AsyncStorage.getItem('WorkoutSets');
+      const reps = await AsyncStorage.getItem('WorkoutReps');
+      const weight = await AsyncStorage.getItem('WorkoutWeight');
+      if (name, reps, sets, weight) {
+        setWorkoutSlides((prevSlides) => [
+          ...prevSlides,
+          {
+            name: name,
+            reps: reps,
+            sets: sets,
+            weight: weight,
+          },
+        ]);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  useEffect(() => {
+    const storeData = async () => {
+      try {
+        await AsyncStorage.setItem('workoutSlides',
+          JSON.stringify(workoutSlides));
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    storeData();
+  }, [workoutSlides]);
+
+  const renderItem = ({ item, index }) => (
+    <View style={styles.workoutTile}>
+      <TouchableOpacity onPress={null}>
+        <View style={styles.topItem}>
+          <Text style={styles.workoutName}>{item.name}
+          </Text>
+          <View style={styles.srwTitles}>
+            <Text style={styles.workoutSets}>{item.reps}
+            </Text>
+            <Text style={styles.workoutReps}>{item.sets}
+            </Text>
+            <Text style={styles.workoutWeight}>{item.weight}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
+  // const deleteItem = React.useCallback((itemToDelete) => {
+  //   setItems((currentItems) =>
+  //     currentItems.filter((item) => item.reference !== itemToDelete.reference)
+  //   );
+  // }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -54,23 +89,17 @@ const Body = ({ navigation }) => {
         <View style={styles.topItem}>
           <Text style={styles.workoutName}>WorkoutName</Text>
           <View style={styles.srwTitles}>
-            <Text style={styles.workoutSets}>Sets</Text>
-            <Text style={styles.workoutReps}>Reps</Text>
+            <Text style={styles.workoutSets}>Reps</Text>
+            <Text style={styles.workoutReps}>Sets</Text>
             <Text style={styles.workoutWeight}>Weight</Text>
           </View>
         </View>
-        <View style={styles.workoutTile}>
-          <TouchableOpacity onPress={deleteWorkout}>
-            <View style={styles.topItem}>
-              <Text style={styles.workoutName}>{WorkoutsName}</Text>
-              <View style={styles.srwTitles}>
-                <Text style={styles.workoutSets}>{WorkoutSets}</Text>
-                <Text style={styles.workoutReps}>{WorkoutReps}</Text>
-                <Text style={styles.workoutWeight}>{WorkoutWeight}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </View>
+        <FlatList
+          data={workoutSlides}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+
+        />
         <View style={styles.bottomBar}>
           <View style={styles.modalWeight}>
           </View>
@@ -83,9 +112,9 @@ const Body = ({ navigation }) => {
           </View>
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback >
   );
-}
+};
 
 const styles = StyleSheet.create({
 
@@ -136,15 +165,18 @@ const styles = StyleSheet.create({
   },
   modalWeight: {
     flex: 0.8,
-    flexDirection: "row",
-    justifyContent: "space-evenly",
   },
   button: {
     flex: 0.2,
     justifyContent: "center",
     alignItems: "flex-end",
     paddingRight: 20,
-
+  },
+  button2: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    paddingRight: 20,
   },
   addWrapper: {
     width: 60,
