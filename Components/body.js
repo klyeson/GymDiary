@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState, useCallback, React } from "react";
+import { useEffect, useState, React } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,21 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   FlatList,
+  Dimensions,
 } from "react-native";
 import { COLORS } from "./Colors";
+
 
 const Body = ({ navigation }) => {
   const [workoutSlides, setWorkoutSlides] = useState([]);
 
   useEffect(() => {
-    load();
-  }, []);
-
+    const didFocus = navigation.addListener(
+      'focus',
+      () => { load(); }
+    )
+    return didFocus;
+  }, [navigation]);
 
   const load = async () => {
     try {
@@ -60,7 +65,7 @@ const Body = ({ navigation }) => {
 
   const renderItem = ({ item, index }) => (
     <View style={styles.workoutTile}>
-      <TouchableOpacity onPress={null}>
+      <TouchableOpacity onPress={() => deleteItem(index)}>
         <View style={styles.topItem}>
           <Text style={styles.workoutName}>{item.name}
           </Text>
@@ -77,17 +82,14 @@ const Body = ({ navigation }) => {
     </View>
   );
 
-  // const deleteItem = React.useCallback((itemToDelete) => {
-  //   setItems((currentItems) =>
-  //     currentItems.filter((item) => item.reference !== itemToDelete.reference)
-  //   );
-  // }, []);
+  const deleteItem = async (index) => { try { const updatedSlides = workoutSlides.filter((item, i) => i !== index); setWorkoutSlides(updatedSlides); await AsyncStorage.setItem('workoutSlides', JSON.stringify(updatedSlides)); } catch (error) { alert(error); } };
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.bodyContainer}>
         <View style={styles.topItem}>
-          <Text style={styles.workoutName}>WorkoutName</Text>
+          <Text style={styles.workoutName}>Workout Name</Text>
           <View style={styles.srwTitles}>
             <Text style={styles.workoutSets}>Reps</Text>
             <Text style={styles.workoutReps}>Sets</Text>
@@ -98,7 +100,6 @@ const Body = ({ navigation }) => {
           data={workoutSlides}
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
-
         />
         <View style={styles.bottomBar}>
           <View style={styles.modalWeight}>
@@ -106,7 +107,7 @@ const Body = ({ navigation }) => {
           <View style={styles.button}>
             <TouchableOpacity onPress={() => navigation.navigate("AddWorkout")}>
               <View style={styles.addWrapper}>
-                <Text style={styles.addText}>+</Text>
+                <Text style={styles.addText}>Add a new Workout</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -127,7 +128,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     margin: 4,
     flexDirection: "row",
-
   },
   workoutName: {
     flex: 0.5,
@@ -157,39 +157,24 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
   },
-  bottomBar: {
-    position: "absolute",
-    width: "100%",
-    flexDirection: "row",
-    bottom: 20,
-  },
-  modalWeight: {
-    flex: 0.8,
-  },
   button: {
-    flex: 0.2,
     justifyContent: "center",
-    alignItems: "flex-end",
-    paddingRight: 20,
-  },
-  button2: {
-    flex: 0.2,
-    justifyContent: "center",
-    alignItems: "flex-start",
-    paddingRight: 20,
+    alignItems: "center",
+    paddingBottom: 3,
   },
   addWrapper: {
-    width: 60,
-    height: 60,
+    width: Dimensions.get('window').width,
+    height: 50,
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: COLORS.button,
   },
   addText: {
-    fontSize: 45,
-    color: "#fff",
+    fontSize: 25,
+    fontFamily: "serif",
+    color: "#000000",
   },
 });
 

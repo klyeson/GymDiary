@@ -1,6 +1,5 @@
 import { SafeAreaView, StyleSheet, StatusBar } from "react-native";
 import { NavigationContainer } from '@react-navigation/native';
-import React, { useState } from "react";
 import WorkoutTile from "./Components/Workout";
 import Body from "./Components/body";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -32,7 +31,7 @@ export default function App() {
               backgroundColor: "#00bfff",
             },
             headerTitleStyle: { fontSize: 28, fontFamily: "serif" },
-            headerTitleAlign: "center"
+            headerTitleAlign: "center",
           }}
         />
       </Stack.Navigator>
@@ -40,16 +39,3 @@ export default function App() {
 
   );
 }
-
-{/* <SafeAreaView style={styles.container}>
-          <Header />
-          <Body />
-        </SafeAreaView> */}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "black",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-});

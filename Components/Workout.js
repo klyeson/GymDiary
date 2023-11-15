@@ -1,7 +1,8 @@
-import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Modal, } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from "react";
 import { COLORS } from "./Colors"
+
 
 
 
@@ -24,8 +25,9 @@ const Workout = ({ navigation }) => {
     } catch (error) {
       alert(error)
     }
-
   };
+
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.Container}>
@@ -35,7 +37,7 @@ const Workout = ({ navigation }) => {
           maxLength={2}
           placeholder="Sets"
           onChangeText={value => setWorkoutSets(value)}></TextInput>
-        <TextInput style={styles.textInput} keyboardType="number-pad" maxLength={3} placeholder="Weight" onChangeText={value => setWorkoutWeight(value)}></TextInput>
+        <TextInput style={styles.textInput} keyboardType="number-pad" maxLength={4} placeholder="Weight" onChangeText={value => setWorkoutWeight(value)}></TextInput>
         <View style={styles.button}>
           <TouchableOpacity onPress={onSubmit}>
             <Text style={styles.buttonText}>Add to Workout</Text>
